@@ -1,0 +1,320 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   Pipverge design system — gold / black / white, premium fintech.
+   ========================================================================= */
+
+@theme {
+  /* Surfaces */
+  --color-background: #0b0b0d;
+  --color-surface: #111318;
+  --color-card: #14161c;
+  --color-elevated: #191c23;
+  --color-border: #262a33;
+  --color-border-strong: #343a47;
+
+  /* Text */
+  --color-foreground: #f4f4f5;
+  --color-muted: #a1a1aa;
+  --color-faint: #71717a;
+
+  /* Brand — gold */
+  --color-gold: #d4af37;
+  --color-gold-bright: #f4c542;
+  --color-gold-dark: #a67c00;
+  --color-gold-soft: #e7cf86;
+
+  /* Status */
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+
+  /* Type */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-space), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-code), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Radii */
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+
+  /* Motion */
+  --animate-fade-up: fade-up 0.6s ease-out both;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-pulse-gold: pulse-gold 3s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes pulse-gold {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+/* ---------------------------------------------------------------- base ---- */
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(212, 175, 55, 0.28);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0b0d;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2f3a;
+  border-radius: 999px;
+  border: 2px solid #0b0b0d;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a4150;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ------------------------------------------------------------- helpers ---- */
+
+/* Gradient text: white → gold */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #ffffff 0%, #f4c542 55%, #d4af37 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.text-gradient-plain {
+  background: linear-gradient(180deg, #ffffff 0%, #c7c7ce 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Gold primary gradient surface */
+.bg-gold-gradient {
+  background-image: linear-gradient(135deg, #f4c542 0%, #d4af37 45%, #a67c00 100%);
+}
+
+.border-gold-gradient {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--color-card), var(--color-card)) padding-box,
+    linear-gradient(135deg, rgba(244, 197, 66, 0.6), rgba(166, 124, 0, 0.15)) border-box;
+}
+
+/* Ambient radial glow */
+.glow-gold {
+  position: relative;
+}
+.glow-gold::before {
+  content: "";
+  position: absolute;
+  inset: -40% -10% auto -10%;
+  height: 420px;
+  background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.16) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.card {
+  background: linear-gradient(160deg, #16181f 0%, #121419 100%);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+}
+
+.card-hover {
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 18px 40px -20px rgba(212, 175, 55, 0.35);
+}
+
+.glass {
+  background: rgba(17, 19, 24, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Hairline gold divider */
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.5), transparent);
+}
+
+/* --------------------------------------------------- scroll reveal -------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* --------------------------------------------------- reduced motion ------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .card-hover:hover {
+    transform: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ------------------------------------------------------- utilities -------- */
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.grid-lines {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* --------------------------------------------------- CMS prose (markdown) -- */
+
+.prose-pv {
+  color: var(--color-muted);
+  line-height: 1.75;
+}
+.prose-pv h1,
+.prose-pv h2,
+.prose-pv h3 {
+  font-family: var(--font-display);
+  color: var(--color-foreground);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  scroll-margin-top: 6rem;
+}
+.prose-pv h1 {
+  font-size: 1.875rem;
+  margin: 0 0 1.25rem;
+}
+.prose-pv h2 {
+  font-size: 1.5rem;
+  margin: 2.25rem 0 1rem;
+}
+.prose-pv h3 {
+  font-size: 1.125rem;
+  margin: 1.75rem 0 0.75rem;
+}
+.prose-pv p {
+  margin: 0 0 1.15rem;
+  font-size: 0.975rem;
+}
+.prose-pv ul {
+  margin: 0 0 1.15rem 1.25rem;
+  list-style: disc;
+}
+.prose-pv li {
+  margin: 0.35rem 0;
+  font-size: 0.975rem;
+}
+.prose-pv strong {
+  color: var(--color-foreground);
+  font-weight: 600;
+}
+.prose-pv em {
+  color: var(--color-faint);
+}
+.prose-pv a {
+  color: var(--color-gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-pv code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 0.1em 0.4em;
+}
+.prose-pv > :first-child {
+  margin-top: 0;
+}

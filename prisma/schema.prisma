@@ -1,0 +1,300 @@
+// Pipverge — Prisma schema (PostgreSQL)
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/* ------------------------------------------------------------------ enums */
+
+enum AdminRole {
+  SUPERADMIN
+  EDITOR
+}
+
+enum UserRole {
+  RETAIL
+  IB
+  REFERRAL
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum NavLocation {
+  HEADER
+  FOOTER
+}
+
+enum MessageStatus {
+  NEW
+  READ
+  ARCHIVED
+}
+
+/* --------------------------------------------------------------- identity */
+
+model Admin {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  passwordHash String
+  name         String
+  role         AdminRole   @default(EDITOR)
+  isActive     Boolean     @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  sessions  AdminSession[]
+  resets    PasswordReset[]
+  auditLogs AuditLog[]
+
+  @@index([email])
+}
+
+model AdminSession {
+  id        String   @id @default(cuid())
+  adminId   String
+  tokenHash String   @unique
+  ip        String?
+  userAgent String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@index([expiresAt])
+}
+
+model PasswordReset {
+  id        String    @id @default(cuid())
+  email     String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  adminId String?
+  admin   Admin?  @relation(fields: [adminId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  fullName     String
+  role         UserRole   @default(RETAIL)
+  status       UserStatus @default(ACTIVE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([email])
+  @@index([status])
+}
+
+/* --------------------------------------------------------------- content */
+
+model Page {
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  title           String
+  content         String        @db.Text
+  metaTitle       String?
+  metaDescription String?
+  ogImage         String?
+  status          ContentStatus @default(DRAFT)
+  publishedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([status])
+}
+
+model NavigationItem {
+  id         String      @id @default(cuid())
+  label      String
+  url        String
+  location   NavLocation @default(HEADER)
+  order      Int         @default(0)
+  isEnabled  Boolean     @default(true)
+  isExternal Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([location, order])
+}
+
+model HomepageSection {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  eyebrow   String?
+  title     String
+  subtitle  String?
+  content   Json?
+  order     Int      @default(0)
+  isEnabled Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+}
+
+model Stat {
+  id        String   @id @default(cuid())
+  label     String
+  value     String
+  suffix    String?
+  note      String?
+  order     Int      @default(0)
+  isEnabled Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+}
+
+model MonthlyReturn {
+  id     String @id @default(cuid())
+  year   Int
+  month  Int
+  pct    Float
+  order  Int    @default(0)
+
+  @@index([year, month])
+}
+
+model Service {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  name          String
+  description   String   @db.Text
+  price         Float?
+  currency      String   @default("USD")
+  billingPeriod String?
+  features      Json?
+  ctaLabel      String?
+  ctaUrl        String?
+  isEnabled     Boolean  @default(true)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([order])
+}
+
+model PricingPlan {
+  id            String   @id @default(cuid())
+  name          String
+  price         Float
+  currency      String   @default("USD")
+  billingPeriod String   @default("month")
+  features      Json?
+  ctaLabel      String   @default("Get started")
+  ctaUrl        String?
+  badge         String?
+  isHighlighted Boolean  @default(false)
+  isActive      Boolean  @default(true)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([order])
+}
+
+model Testimonial {
+  id            String   @id @default(cuid())
+  name          String
+  role          String?
+  company       String?
+  quote         String   @db.Text
+  avatarMediaId String?
+  isEnabled     Boolean  @default(true)
+  order         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  avatar Media? @relation(fields: [avatarMediaId], references: [id], onDelete: SetNull)
+
+  @@index([order])
+}
+
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   @db.Text
+  isEnabled Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+}
+
+/* ---------------------------------------------------------------- assets */
+
+model Media {
+  id           String   @id @default(cuid())
+  filename     String   @unique
+  originalName String
+  mimeType     String
+  size         Int
+  width        Int?
+  height       Int?
+  url          String
+  alt          String?
+  createdAt    DateTime @default(now())
+
+  testimonials Testimonial[]
+}
+
+/* ------------------------------------------------------------- operations */
+
+model ContactMessage {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String        @db.Text
+  status    MessageStatus @default(NEW)
+  createdAt DateTime      @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model SiteSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  adminId   String?
+  action    String
+  entity    String
+  entityId  String?
+  before    Json?
+  after     Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  admin Admin? @relation(fields: [adminId], references: [id], onDelete: SetNull)
+
+  @@index([entity])
+  @@index([createdAt])
+}
